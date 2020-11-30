@@ -2,28 +2,38 @@ Vagrant.configure("2") do |config|
     
     config.vm.box = "debian/jessie64"
     config.vm.hostname = "debian"
-    config.vm.network "public_network", type: "dhcp", :bridge => 'en0: Wi-Fi (AirPort)'
+    config.vm.network "public_network", type: "dhcp", :bridge => 'en0: Wi-Fi (AirPort)' # TODO
 
     config.vm.provider "virtualbox" do |v|
         v.cpus = 2
         v.memory = 1024
     end
+
     
     config.vm.provision:shell, inline: "apt-get update"
-    config.vm.provision:shell, inline: "apt-get install -y vim"
-    config.vm.provision:shell, inline: "apt-get install -y tightvncserver"
-    config.vm.provision:shell, inline: "apt-get install -y xfce4-goodies xfce4"
-
-    config.vm.provision:shell, inline: "mkdir -p /root/.vnc"
-    config.vm.provision:shell, inline: "echo geslo123 | vncpasswd -f > /root/.vnc/passwd"
+    # TODO remove vim
+    config.vm.provision:shell, inline: "apt-get install -y vim tightvncserver xfce4-goodies xfce4 netsurf"
+    
+    # set VNC password
+    config.vm.provision:shell, inline: "mkdir -p /root/.vnc && echo geslo123 | vncpasswd -f > /root/.vnc/passwd"
     config.vm.provision:shell, inline: "chmod 600 /root/.vnc/passwd" 
 
-
     # create and modify 'xstartup' file
-    config.vm.provision:shell, inline: "vncserver && vncserver -kill :1 && echo 'startxfce4 &' >> /root/vagrant/.vnc/xstartup" 
+    config.vm.provision:shell, inline: "vncserver && vncserver -kill :1 && echo 'startxfce4 &' >> /root/.vnc/xstartup" 
 
     # start VNC server
     config.vm.provision:shell, inline: "vncserver -geometry 1920x1080"
 
-    # sudo passwd root
+    # install Java 8
+    config.vm.provision:file, source: "./jdk-8u261-linux-x64.tar.gz", destination: "/home/vagrant/jdk-8u261-linux-x64.tar.gz"
+    config.vm.provision:shell, inline: "mkdir -p /usr/lib/jvm"
+    config.vm.provision:shell, inline: "tar zxvf /home/vagrant/jdk-8u261-linux-x64.tar.gz -C /usr/lib/jvm"
+    config.vm.provision:shell, inline: "update-alternatives --install '/usr/bin/java' 'java' '/usr/lib/jvm/jdk1.8.0_261/bin/java' 1"
+    config.vm.provision:shell, inline: "update-alternatives --set java /usr/lib/jvm/jdk1.8.0_261/bin/java"
+
+
+    # docker run -p 8080:8080 -v ~/guacconfig:/config oznu/guacamole
+
+    # TODO uninstall unnecessary packages
+
 end
