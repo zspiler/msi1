@@ -2,7 +2,7 @@ Vagrant.configure("2") do |config|
     
     config.vm.box = "debian/jessie64"
     config.vm.hostname = "debian"
-    config.vm.network "public_network", type: "dhcp", :bridge => 'en0: Wi-Fi (AirPort)' # TODO
+    config.vm.network "public_network"
 
     config.vm.provider "virtualbox" do |v|
         v.cpus = 2
@@ -11,9 +11,11 @@ Vagrant.configure("2") do |config|
 
     
     config.vm.provision:shell, inline: "apt-get update"
-    # TODO remove vim
-    config.vm.provision:shell, inline: "apt-get install -y vim tightvncserver xfce4-goodies xfce4 netsurf"
+    config.vm.provision:shell, inline: "apt-get install -y tightvncserver vim xfce4-goodies xfce4 chromium"
     
+    # make sure 'root' can launch Chromium
+    config.vm.provision:shell, inline: "echo 'CHROMIUM_FLAGS=--no-sandbox' >> /etc/chromium.d/default"
+
     # set VNC password
     config.vm.provision:shell, inline: "mkdir -p /root/.vnc && echo geslo123 | vncpasswd -f > /root/.vnc/passwd"
     config.vm.provision:shell, inline: "chmod 600 /root/.vnc/passwd" 
@@ -24,16 +26,15 @@ Vagrant.configure("2") do |config|
     # start VNC server
     config.vm.provision:shell, inline: "vncserver -geometry 1920x1080"
 
-    # install Java 8
-    config.vm.provision:file, source: "./jdk-8u261-linux-x64.tar.gz", destination: "/home/vagrant/jdk-8u261-linux-x64.tar.gz"
+    # install Java 8    
+    config.vm.provision:shell, inline: "cd /home/vagrant && wget https://files-cdn.liferay.com/mirrors/download.oracle.com/otn-pub/java/jdk/8u121-b13/jdk-8u121-linux-x64.tar.gz"
+    
     config.vm.provision:shell, inline: "mkdir -p /usr/lib/jvm"
-    config.vm.provision:shell, inline: "tar zxvf /home/vagrant/jdk-8u261-linux-x64.tar.gz -C /usr/lib/jvm"
-    config.vm.provision:shell, inline: "update-alternatives --install '/usr/bin/java' 'java' '/usr/lib/jvm/jdk1.8.0_261/bin/java' 1"
-    config.vm.provision:shell, inline: "update-alternatives --set java /usr/lib/jvm/jdk1.8.0_261/bin/java"
+    config.vm.provision:shell, inline: "tar zxvf /home/vagrant/jdk-8u121-linux-x64.tar.gz -C /usr/lib/jvm"
+    config.vm.provision:shell, inline: "update-alternatives --install '/usr/bin/java' 'java' '/usr/lib/jvm/jdk1.8.0_121/bin/java' 1"
+    config.vm.provision:shell, inline: "update-alternatives --set java /usr/lib/jvm/jdk1.8.0_121/bin/java"
 
 
     # docker run -p 8080:8080 -v ~/guacconfig:/config oznu/guacamole
-
-    # TODO uninstall unnecessary packages
 
 end
