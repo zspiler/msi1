@@ -2,7 +2,7 @@ packages:
   - tightvncserver
   - xfce4-goodies 
   - xfce4
-  - netsurf
+  - midori
 
 runcmd:
   # setup VNC
@@ -16,6 +16,9 @@ runcmd:
   # install jdk 8
   - cd /root && wget https://files-cdn.liferay.com/mirrors/download.oracle.com/otn-pub/java/jdk/8u121-b13/jdk-8u121-linux-x64.tar.gz
   - mkdir -p /usr/lib/jvm
-  - tar zxvf /root/jdk-8u121-linux-x64.tar.gz -C /usr/lib/jvm
+  - tar zxvf /root/jdk-8u121-linux-x64.tar.gz -C /usr/lib/jvm && rm /root/jdk-8u121-linux-x64.tar.gz
   - update-alternatives --install '/usr/bin/java' 'java' '/usr/lib/jvm/jdk1.8.0_121/bin/java' 1
   - update-alternatives --set java /usr/lib/jvm/jdk1.8.0_121/bin/java
+  - update-alternatives --set java /usr/lib/jvm/jdk1.8.0_121/bin/java
+  - echo 'PATH=$PATH:/usr/lib/jvm/jdk1.8.0_121/bin' >> /root/.bashrc
+
